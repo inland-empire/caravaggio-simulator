@@ -1,6 +1,6 @@
 import pygame
 import os
-from pygame import display
+from pygame import Vector2, display
 from pygame.constants import KEYDOWN, MOUSEBUTTONDOWN, QUIT
 
 pygame.init()
@@ -22,6 +22,7 @@ pygame.display.set_caption(GAME_TITLE)
 dir_path = os.path.dirname(os.path.realpath(__file__))
 assets_path = os.path.join(dir_path, "assets")
 background_png_path = os.path.join(assets_path, "tavern.png")
+player_png_path = os.path.join(assets_path, "cara.png")
 
 
 # Declare key classes - I prefer them in separate files in the future commits
@@ -39,6 +40,31 @@ class Background(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
+        self.image = pygame.image.load(player_png_path)
+        self.rect = self.image.get_rect()
+
+        # Position and direction
+        self.vx = 0
+        # Player's current position on the surface
+        self.pos = Vector2(340, 240)
+        # Player's walking / running speed
+        self.velocity = Vector2(0, 0)
+        self.accelerate = Vector2(0.0)
+        # Direction our player is currentlyfacing
+        self.direction = "RIGHT"
+
+    def move(self):
+        pass
+
+    def update(self):
+        pass
+
+# This will be the method to make enemy angry and can provoke a fight
+    def provoke(self):
+        pass
+
+    def attack(self):
+        pass
 
 
 class Bartender(pygame.sprite.Sprite):
@@ -47,6 +73,7 @@ class Bartender(pygame.sprite.Sprite):
 
 
 if __name__ == "__main__":
+    player = Player()
     background = Background()
 
     running = True
@@ -63,6 +90,7 @@ if __name__ == "__main__":
                 pass
 
         background.render()
+        displaySurface.blit(player.image, player.rect)
 
         pygame.display.update()
         FPS_CLOCK.tick(FPS)
