@@ -1,7 +1,8 @@
 import pygame
 import os
 from pygame import Vector2, display
-from pygame.constants import KEYDOWN, MOUSEBUTTONDOWN, QUIT
+from pygame.constants import K_LEFT, KEYDOWN, MOUSEBUTTONDOWN, QUIT
+from enum import Enum
 
 pygame.init()
 
@@ -13,6 +14,7 @@ SCREEN_WIDTH = 608
 
 FPS = 60
 FPS_CLOCK = pygame.time.Clock()
+SPEED = 400
 
 # Creates display surface which is essentially the 'window'
 displaySurface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -40,7 +42,11 @@ class Background(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load(player_png_path)
+        img = pygame.image.load(player_png_path)
+        img_height = img.get_height()
+        img_width = img.get_width()
+        scale = 0.25
+        self.image = pygame.transform.scale(img, (int(img_width * scale), int(img_height * scale)))
         self.rect = self.image.get_rect()
 
         # Position and direction
@@ -48,16 +54,25 @@ class Player(pygame.sprite.Sprite):
         # Player's current position on the surface
         self.pos = Vector2(340, 240)
         # Player's walking / running speed
-        self.velocity = Vector2(0, 0)
+        self.velocity = Vector2(0.0, 0.0)
         self.accelerate = Vector2(0.0)
         # Direction our player is currentlyfacing
-        self.direction = "RIGHT"
+        # class Direction(Enum):
+        #     UP = 1
+        #     DOWN = 2
+        #     LEFT = 3
+        #     RIGHT = 4
+        # self.direction = Direction.RIGHT
 
     def move(self):
-        pass
+        displacement = self.velocity / FPS 
+        self.rect = self.rect.move(int(displacement.x), int(displacement.y))
 
     def update(self):
-        pass
+        self.move() # move to new position
+        print(self.velocity)
+        print(self.rect)
+        displaySurface.blit(self.image, self.rect) # draw new player
 
 # This will be the method to make enemy angry and can provoke a fight
     def provoke(self):
@@ -84,13 +99,12 @@ if __name__ == "__main__":
             # This two have to come together otherwise game won't quit due to a bug
             if event.type == QUIT:
                 running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pass
-            if event.type == pygame.KEYDOWN:
-                pass
 
+        keys = pygame.key.get_pressed()
+        player.velocity.x = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * SPEED
+        player.velocity.y = (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * SPEED
         background.render()
-        displaySurface.blit(player.image, player.rect)
+        player.update()
 
         pygame.display.update()
         FPS_CLOCK.tick(FPS)
