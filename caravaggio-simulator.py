@@ -31,6 +31,10 @@ background_png_path = os.path.join(assets_path, "tavern.png")
 player_png_path = os.path.join(assets_path, "cara.png")
 bartender_png_path = os.path.join(assets_path, "bartender.png")
 
+# Define User events
+DIALOG_EVENT_TYPE = pygame.USEREVENT + 0
+DIALOG_EVENT = pygame.event.Event(DIALOG_EVENT_TYPE, message="Trigger dialog")
+
 
 # Declare key classes - I prefer them in separate files in the future commits
 class Background(pygame.sprite.Sprite):
@@ -67,10 +71,13 @@ class Player(pygame.sprite.Sprite):
         displacement = self.velocity / FPS
         self.rect = self.rect.move(int(displacement.x), int(displacement.y))
 
-    def update(self):
+    def update(self, npc_group):
         self.move()  # move to new position
         # print(self.velocity)
         # print(self.rect)
+        collided_npc_list = pygame.sprite.spritecollide(self, npc_group, False)
+        if collided_npc_list:
+            pygame.event.post(DIALOG_EVENT)
         displaySurface.blit(self.image, self.rect)  # draw new player
 
 # This will be the method to make enemy angry and can provoke a fight
@@ -110,14 +117,14 @@ class Bartender(pygame.sprite.Sprite):
 
     def update(self):
         self.move()  # move to new position
-        print(self.velocity)
-        print(self.rect)
         displaySurface.blit(self.image, self.rect)
 
 
 if __name__ == "__main__":
     player = Player()
     bartender = Bartender()
+    npc_group = pygame.sprite.Group()
+    npc_group.add(bartender)
     background = Background()
 
     running = True
@@ -125,7 +132,8 @@ if __name__ == "__main__":
     while running:
 
         for event in pygame.event.get():
-            # This two have to come together otherwise game won't quit due to a bug
+            if event.type == DIALOG_EVENT_TYPE:
+                print("Dialog triggered")
             if event.type == QUIT:
                 running = False
 
@@ -134,7 +142,7 @@ if __name__ == "__main__":
                              keys[pygame.K_LEFT]) * SPEED
         player.velocity.y = (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * SPEED
         background.render()
-        player.update()
+        player.update(npc_group)
         bartender.update()
 
         pygame.display.update()
