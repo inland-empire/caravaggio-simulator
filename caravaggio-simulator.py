@@ -120,13 +120,25 @@ class Bartender(pygame.sprite.Sprite):
         displaySurface.blit(self.image, self.rect)
 
 
+class DialogHandler():
+    def __init__(self):
+        pass
+
+    def handle(self):
+        dialogFont = pygame.freetype.SysFont('consolas', 30)
+        dialogFont.render_to(displaySurface, (0, 0),
+                             'Caravaggio: What is your problem?')
+
+
 if __name__ == "__main__":
     player = Player()
     bartender = Bartender()
     npc_group = pygame.sprite.Group()
     npc_group.add(bartender)
     background = Background()
+    dialogHanlder = DialogHandler()
 
+    is_dialog_mode = False
     running = True
 
     while running:
@@ -134,6 +146,8 @@ if __name__ == "__main__":
         for event in pygame.event.get():
             if event.type == DIALOG_EVENT_TYPE:
                 print("Dialog triggered")
+                is_dialog_mode = True
+
             if event.type == QUIT:
                 running = False
 
@@ -145,6 +159,8 @@ if __name__ == "__main__":
         player.update(npc_group)
         bartender.update()
 
+        if(is_dialog_mode):
+            dialogHanlder.handle()
         pygame.display.update()
         FPS_CLOCK.tick(FPS)
     pygame.quit()
